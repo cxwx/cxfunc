@@ -48,20 +48,22 @@ if(CX_BUILD_TEST)
 endif()
 
 # === install ===
-set(CMAKE_INSTALL_PREFIX $ENV{HOME}/software/install/)
-install(FILES cxFileIO.hh DESTINATION include/cxfunc/)
+if(NOT DEFINED CXFUNC_TOP_LEVEL_BUILD)
+    set(CMAKE_INSTALL_PREFIX $ENV{HOME}/software/install/)
+    install(FILES cxFileIO.hh DESTINATION include/cxfunc/)
 
-if(ROOT_FOUND)
+    if(ROOT_FOUND)
+        install(
+            FILES
+                ${CMAKE_BINARY_DIR}/libcxfileio_rdict.pcm
+                ${CMAKE_BINARY_DIR}/libcxfileio.rootmap
+            DESTINATION lib/
+        )
+    endif()
     install(
-        FILES
-            ${CMAKE_BINARY_DIR}/libcxfileio_rdict.pcm
-            ${CMAKE_BINARY_DIR}/libcxfileio.rootmap
-        DESTINATION lib/
+        TARGETS cxfileio
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
     )
 endif()
-install(
-    TARGETS cxfileio
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-)

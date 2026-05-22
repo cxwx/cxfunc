@@ -92,33 +92,35 @@ if(CXCONFIG_BUILD_TEST)
 endif()
 
 # === install ===
-include(GNUInstallDirs)
-install(
-    TARGETS cxconfig
-    EXPORT cxconfigTargets
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-)
-install(
-    FILES
-        ConfigBase.hh
-        ConfigManager.hh
-        ConfigYAML.hh
-        ConfigJson.hh
-        ConfigTomlpp.hh
-        ConfigRapidYml.hh
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cxfunc
-)
-install(
-    EXPORT cxconfigTargets
-    NAMESPACE cxconfig::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/cxconfig
-)
-if(ROOT_FOUND)
+if(NOT DEFINED CXFUNC_TOP_LEVEL_BUILD)
+    include(GNUInstallDirs)
+    install(
+        TARGETS cxconfig
+        EXPORT cxconfigTargets
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    )
     install(
         FILES
-            ${CMAKE_BINARY_DIR}/libcxconfig_rdict.pcm
-            ${CMAKE_BINARY_DIR}/libcxconfig.rootmap
-        DESTINATION lib/
+            ConfigBase.hh
+            ConfigManager.hh
+            ConfigYAML.hh
+            ConfigJson.hh
+            ConfigTomlpp.hh
+            ConfigRapidYml.hh
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cxfunc
     )
+    install(
+        EXPORT cxconfigTargets
+        NAMESPACE cxconfig::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/cxconfig
+    )
+    if(ROOT_FOUND)
+        install(
+            FILES
+                ${CMAKE_BINARY_DIR}/libcxconfig_rdict.pcm
+                ${CMAKE_BINARY_DIR}/libcxconfig.rootmap
+            DESTINATION lib/
+        )
+    endif()
 endif()

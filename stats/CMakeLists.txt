@@ -64,15 +64,17 @@ if(BUILD_BENCHMARKS)
 endif()
 
 # ====== Installation ======
-install(DIRECTORY include/ DESTINATION include)
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/CxFuncStatsConfigVersion.cmake"
-    VERSION ${PROJECT_VERSION}
-    COMPATIBILITY AnyNewerVersion
-)
+if(NOT DEFINED CXFUNC_TOP_LEVEL_BUILD)
+    install(DIRECTORY include/ DESTINATION include)
+    include(CMakePackageConfigHelpers)
+    write_basic_package_version_file(
+        "${CMAKE_CURRENT_BINARY_DIR}/CxFuncStatsConfigVersion.cmake"
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY AnyNewerVersion
+    )
 
-install(FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/CxFuncStatsConfigVersion.cmake"
-    DESTINATION cmake/CxFuncStats
-)
+    install(FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/CxFuncStatsConfigVersion.cmake"
+        DESTINATION cmake/CxFuncStats
+    )
+endif()

@@ -65,28 +65,30 @@ if(CXRANDOM_BUILD_TEST)
 endif()
 
 # === install ===
-include(GNUInstallDirs)
-install(
-    TARGETS cxrandom
-    EXPORT cxrandomTargets
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-)
-install(
-    FILES
-        cxRandomSeed3.hh
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cxfunc
-)
-install(
-    EXPORT cxrandomTargets
-    NAMESPACE cxrandom::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/cxrandom
-)
-if(ROOT_FOUND)
+if(NOT DEFINED CXFUNC_TOP_LEVEL_BUILD)
+    include(GNUInstallDirs)
+    install(
+        TARGETS cxrandom
+        EXPORT cxrandomTargets
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    )
     install(
         FILES
-            ${CMAKE_BINARY_DIR}/libcxrandom_rdict.pcm
-            ${CMAKE_BINARY_DIR}/libcxrandom.rootmap
-        DESTINATION lib/
+            cxRandomSeed3.hh
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cxfunc
     )
+    install(
+        EXPORT cxrandomTargets
+        NAMESPACE cxrandom::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/cxrandom
+    )
+    if(ROOT_FOUND)
+        install(
+            FILES
+                ${CMAKE_BINARY_DIR}/libcxrandom_rdict.pcm
+                ${CMAKE_BINARY_DIR}/libcxrandom.rootmap
+            DESTINATION lib/
+        )
+    endif()
 endif()
