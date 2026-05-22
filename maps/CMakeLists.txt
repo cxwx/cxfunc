@@ -12,7 +12,7 @@ option(BUILD_EXAMPLES "Build example programs" ON)
 option(BUILD_BENCHMARKS "Build benchmark programs" ON)
 
 # ====== Dependencies ======
-find_package(Eigen3 5.0 REQUIRED NO_MODULE)
+find_package(Eigen3 REQUIRED NO_MODULE)
 
 # Optional: Math library (if available as separate project)
 find_package(cxfunc_math QUIET)

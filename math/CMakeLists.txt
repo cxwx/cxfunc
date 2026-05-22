@@ -15,7 +15,7 @@ option(USE_BOOST_MATH "Use Boost.Math for special functions" OFF)
 option(USE_GSL "Use GSL for root finding" ON)
 
 # ====== Dependencies ======
-find_package(Eigen3 5.0 REQUIRED NO_MODULE)
+find_package(Eigen3 REQUIRED NO_MODULE)
 
 if(USE_BOOST_MATH)
     find_package(Boost 1.71 REQUIRED COMPONENTS math)

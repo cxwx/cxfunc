@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: macOS
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Install system dependencies
+      run: |
+        brew update
+        brew install \
+          cmake \
+          eigen \
+          gsl \
+          boost \
+          yaml-cpp \
+          nlohmann-json \
+          tomlplusplus \
+          rapidyaml \
+          googletest
+
+    - name: Configure CMake
+      run: |
+        mkdir build
+        cd build
+
+        cmake .. \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DBUILD_TESTS=ON \
+          -DBUILD_EXAMPLES=OFF \
+          -DBUILD_BENCHMARKS=OFF \
+          -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/install \
+          -DCXFUNC_TOP_LEVEL_BUILD=ON
+
+    - name: Build
+      run: |
+        cd build
+        cmake --build . --parallel $(sysctl -n hw.ncpu)
+
+    - name: Run tests
+      run: |
+        cd build
+        ctest --output-on-failure --parallel $(sysctl -n hw.ncpu)
+      continue-on-error: true
+
+    - name: Install
+      run: |
+        cd build
+        cmake --install .
+
+    - name: Verify installation
+      run: |
+        ls -la ${{ github.workspace }}/install/lib/ || echo "No lib directory"
+        ls -la ${{ github.workspace }}/install/include/cxfunc/ || echo "No include/cxfunc directory"

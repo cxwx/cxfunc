@@ -22,19 +22,33 @@ if(NOT tomlplusplus_INCLUDE_DIRS)
         "toml++ not found. Install it: brew install tomlplusplus"
     )
 endif()
-find_package(ryml REQUIRED)
+
+# ryml is optional (for Ubuntu compatibility)
+find_package(ryml QUIET)
+if(ryml_FOUND)
+    message(STATUS "ryml found, enabling RapidYML support")
+    set(HAVE_RYML TRUE)
+else()
+    message(STATUS "ryml not found, disabling RapidYML support")
+    set(HAVE_RYML FALSE)
+endif()
 
 # === sources ===
-set(CXCONFIG_SRCS ConfigYAML.cc ConfigJson.cc ConfigTomlpp.cc ConfigRapidYml.cc)
+set(CXCONFIG_SRCS ConfigYAML.cc ConfigJson.cc ConfigTomlpp.cc)
+if(HAVE_RYML)
+    list(APPEND CXCONFIG_SRCS ConfigRapidYml.cc)
+endif()
 
 set(DICT_HEADERS
     ConfigBase.hh
     ConfigManager.hh
     ConfigTomlpp.hh
     ConfigJson.hh
-    ConfigRapidYml.hh
     ConfigYAML.hh
 )
+if(HAVE_RYML)
+    list(APPEND DICT_HEADERS ConfigRapidYml.hh)
+endif()
 
 find_package(ROOT QUIET)
 
@@ -43,11 +57,19 @@ if(ROOT_FOUND)
     include(${ROOT_USE_FILE})
     add_definitions(${ROOT_CXX_FLAGS})
     root_generate_dictionary(G__cxconfig ${DICT_HEADERS} LINKDEF LinkDef.h)
-    set(CXCONFIG_SRCS ConfigYAML.cc ConfigJson.cc ConfigTomlpp.cc ConfigRapidYml.cc G__cxconfig.cxx)
+    if(HAVE_RYML)
+        set(CXCONFIG_SRCS ConfigYAML.cc ConfigJson.cc ConfigTomlpp.cc ConfigRapidYml.cc G__cxconfig.cxx)
+    else()
+        set(CXCONFIG_SRCS ConfigYAML.cc ConfigJson.cc ConfigTomlpp.cc G__cxconfig.cxx)
+    endif()
     set(ROOT_DEPS ${ROOT_LIBRARIES})
 else()
     message(STATUS "ROOT not found, building without dictionary support.")
-    set(CXCONFIG_SRCS ConfigYAML.cc ConfigJson.cc ConfigTomlpp.cc ConfigRapidYml.cc)
+    if(HAVE_RYML)
+        set(CXCONFIG_SRCS ConfigYAML.cc ConfigJson.cc ConfigTomlpp.cc ConfigRapidYml.cc)
+    else()
+        set(CXCONFIG_SRCS ConfigYAML.cc ConfigJson.cc ConfigTomlpp.cc)
+    endif()
     set(ROOT_DEPS "")
 endif()
 
@@ -66,8 +88,11 @@ target_include_directories(
         ${yaml-cpp_INCLUDE_DIRS}
         ${nlohmann_json_INCLUDE_DIRS}
         ${tomlplusplus_INCLUDE_DIRS}
-        ${ryml_INCLUDE_DIRS}
 )
+if(HAVE_RYML)
+    target_include_directories(cxconfig PUBLIC ${ryml_INCLUDE_DIRS})
+    target_compile_definitions(cxconfig PUBLIC CXCONFIG_HAVE_RYML)
+endif()
 target_link_libraries(
     cxconfig
     PUBLIC
