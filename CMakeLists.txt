@@ -31,6 +31,7 @@ set(CXFUNC_MODULES
     modeling
     random
     stats
+    timer
 )
 
 # Pass global options to subdirectories
