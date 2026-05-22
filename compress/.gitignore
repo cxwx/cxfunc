@@ -1,0 +1,9 @@
+build/
+.claude/
+*.o
+*.a
+*.dylib
+*.so
+compile_commands.json
+/.harper-dictionary.txt
+/.xmake/macosx/arm64

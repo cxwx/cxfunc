@@ -1,0 +1,29 @@
+# config for testing
+verbose = 1
+mode = "test"
+seed = ["random_device", "random_device", 33]
+count = 42
+pi = 3.14159
+enabled = true
+empty_str = ""
+
+[app]
+name = "toml_test"
+version = 2
+debug = false
+
+[database]
+host = "toml-host"
+port = 8080
+
+[database.pool]
+size = 5
+timeout = 15
+
+[database.pool.tags]
+main = true
+backup = false
+
+[global]
+verbose = 2
+level = "info"

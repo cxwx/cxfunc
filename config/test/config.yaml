@@ -1,0 +1,20 @@
+# config for testing
+global:
+  verbose: 2
+  mode: debug
+  seed: [random_device, 42]
+  spdlog: info
+  spdlogformat: "[%M:%S] [%L] %v"
+
+app:
+  name: test_app
+  version: 3
+  debug: true
+
+database:
+  host: localhost
+  port: 5432
+  name: mydb
+  pool:
+    size: 10
+    timeout: 30

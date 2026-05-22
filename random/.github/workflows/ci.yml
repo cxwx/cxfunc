@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Ubuntu 24.04 (no ROOT)
+            os: ubuntu-latest
+            cxx: g++-12
+          - name: macOS 15
+            os: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies (Ubuntu)
+        if: contains(matrix.os, 'ubuntu')
+        run: |
+          sudo apt update
+          sudo apt install -y g++-12
+
+      - name: Install dependencies (macOS)
+        if: contains(matrix.os, 'macos')
+        run: brew install spdlog
+
+      - name: Configure
+        run: |
+          mkdir -p build
+          cd build
+          cmake .. -DCMAKE_CXX_COMPILER=${{ matrix.cxx || 'c++' }}
+          cmake --build .
+
+      - name: Run cxrandom_test
+        run: |
+          cd build
+          ./cxrandom_test
+          echo "All tests passed."

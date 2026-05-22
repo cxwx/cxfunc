@@ -1,0 +1,21 @@
+{
+  "global": {
+    "verbose": 3,
+    "mode": "release",
+    "seed": ["custom", 99]
+  },
+  "app": {
+    "name": "json_test",
+    "version": 4,
+    "debug": false
+  },
+  "database": {
+    "host": "remotehost",
+    "port": 3306,
+    "name": "testdb",
+    "pool": {
+      "size": 20,
+      "timeout": 60
+    }
+  }
+}

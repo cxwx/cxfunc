@@ -1,0 +1,23 @@
+# Claude Code
+/.claude
+
+# Build directories
+/build/
+
+# Python gammapy source
+/org/gammapy-2.1
+
+# Migration artifacts (removed)
+/MIGRATION_STATUS.md
+/old/cpp
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+/compile_commands.json

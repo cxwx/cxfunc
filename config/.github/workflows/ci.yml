@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main, y]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        with-root: ['no']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          brew install yaml-cpp nlohmann-json tomlplusplus rapidyaml
+
+      - name: Configure
+        run: |
+          mkdir build && cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+                   -DCXCONFIG_BUILD_TEST=ON \
+                   -DCMAKE_DISABLE_FIND_PACKAGE_ROOT=ON
+          cmake --build . -j$(sysctl -n hw.ncpu)
+
+      - name: Run tests
+        working-directory: build
+        run: ./cxconfig_test
+
+  # TODO: c++ 20 but ROOT@homebrew only 17
+  # build-with-root:
+  #   runs-on: macos-latest
+  #
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Install dependencies
+  #       run: |
+  #         brew install yaml-cpp nlohmann-json tomlplusplus rapidyaml root
+  #
+  #     - name: Configure
+  #       run: |
+  #         mkdir build && cd build
+  #         cmake .. -DCMAKE_BUILD_TYPE=Release \
+  #                  -DCXCONFIG_BUILD_TEST=ON
+  #         cmake --build . -j$(sysctl -n hw.ncpu)
+  #
+  #     - name: Run tests
+  #       working-directory: build
+  #       run: ./cxconfig_test
