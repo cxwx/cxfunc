@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.3)
+cmake_minimum_required(VERSION 3.15)
 
 message(STATUS "Adding timer module")
 
@@ -49,17 +49,24 @@ if(ROOT_FOUND)
         ${ROOT_INCLUDE_DIRS}
     )
 
-    # 安装可执行文件到 bin 目录
-    install(TARGETS cxRandTest cxHeaderTest
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    )
-
 else()
     message(WARNING "ROOT not found, timer module examples will not be built")
 endif()
 
-# 安装头文件
-install(FILES
-    benchmark.hh
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cxfunc/timer
-)
+# === install ===
+if(NOT DEFINED CXFUNC_TOP_LEVEL_BUILD)
+    include(GNUInstallDirs)
+
+    if(ROOT_FOUND)
+        # 安装可执行文件到 bin 目录
+        install(TARGETS cxRandTest cxHeaderTest
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        )
+    endif()
+
+    # 安装头文件
+    install(FILES
+        benchmark.hh
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cxfunc/timer
+    )
+endif()
