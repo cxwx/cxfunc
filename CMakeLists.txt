@@ -29,6 +29,7 @@ set(CXFUNC_MODULES
     config
     math
     modeling
+    poisson
     random
     stats
     timer
