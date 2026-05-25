@@ -1,0 +1,113 @@
+             ERROR BARS FOR POISSON DATA
+             ---------------------------
+
+The Statistics Committee had been asked by the Spokespersons to make a
+recommendation about the magnitude of error bars to be shown on
+histograms in CDF publications. This produced very animated discussions
+in the Statistics Committee. Because the question related merely to the
+way plots were produced and not to the actual analysis of the data, we
+felt that this is not really a statistics question, but rather a
+presentational issue. We did think that it is worth while having a
+uniform CDF practice. Below is a summary of our discussions. 
+
+Taking this into consideration, it was decided that it is simplest to
+keep to the traditional practice of using sqrt(n) for the error bars,
+where n is the observed number of events.
+
+
+
+
+             SUMMARY OF DISCUSSION
+             ---------------------
+
+1)       The BaBar Statistics Working Group does have a specific
+recommendation on how to plot error bars on Poisson data, and provides
+software to do this. Joel looked into this, and interestingly enough
+found that the error bars that are produced by the BaBar software do not
+agree with the Working Group's recommendation! Also neither the BaBar
+recommendation nor the BaBar RooFit code (which some CDF analyses are
+already using) agree with either of our alternative suggestions 3) and
+4) below.
+
+2)       We considered a suggestion that Poisson error bars should be
+shown on a theoretical prediction rather than on the actual data itself.
+We rejected this on the grounds that the data could well be shown on its
+own without any theory; or there could be several theoretical
+predictions, which would produce a very cluttered plot. Furthermore,
+given the conventions normally used, it could be confusing for a reader
+to have errors shown on a Monte Carlo prediction, and the data not to
+have errors. We conclude that the errors should be shown attached to the
+data.
+       
+3)      We feel it is important to have a relatively simple rule that is
+readily understood by readers. A reader does not want to have to work
+hard simply to understand what an error bar on a plot represents. From
+this point of view, there is a lot in favour of simply using +-sqrt(n)
+[perhaps with some special treatment for n=0 -- see 6) below]. If this
+were adopted, there would be no need to explain what convention we were
+using for error bars. Otherwise, every paper containing a plot with
+small numbers of events/bin would need to include one or two sentences
+describing what exactly the error bars were.
+        Since the use of +-sqrt(n) is so widespread, the argument in
+favour of an alternative should be convincing in order for it to be
+adopted.
+
+4)      An alternative with some nice properties is +-0.5 + sqrt(n+0.25)
+i.e upper error = 0.5 + sqrt(n+0.25), lower error = -0.5 + sqrt(n+0.25).
+These produce the following intervals:  
+n    low      high     cred.        
+0 0.000000  1.000000 0.632121
+1 0.381966  2.618034 0.679295
+2 1.000000  4.000000 0.681595
+3 1.697224  5.302776 0.682159
+4 2.438447  6.561553 0.682378
+5 3.208712  7.791288 0.682485
+6 4.000000  9.000000 0.682545
+7 4.807418 10.192582 0.682582
+8 5.627719 11.372281 0.682607
+9 6.458619 12.541381 0.682624
+where cred. is the Bayesian credibility with a flat prior, and ideally
+should be 0.682689. The frequentist coverage of this approach (as well
+as a lot of other interesting information) is shown in CDF note 6438
+http://www-cdf.fnal.gov/publications/cdf6438_coverage.pdf  by Joel (see
+the second figure there).  
+     Some of the advantages of this algorithm are that it gives non-zero
+error bars for n=0; it produces an error bar that does not go all the
+way down to zero when n=1; and it yields asymmetric error bars that
+reflect the asymmetry of the Poisson distribution.
+    These intervals arise from either:
+a) a Pearson chi-squared approach, in which chi-squared is defined as
+(n-mu)^2/mu, and the  range on the parameter mu is obtained by letting
+chi-squared increase from its minimum by 1 unit; or
+b) an extension of the sqrt(n) rule, to make the error bar end at the
+point where there is a 1-sigma deviation, but where sigma is calculated
+for the value where the bars ends, not at the measured point itself.
+(This implies that, if you later plot a theory curve on the data, and
+see a point just touching with the edge of the error bar, that same
+point would have been at the edge of the bar if you had followed the
+alternative convention of putting the error on the theory instead of
+data).
+
+5) Whether explicitly to plot points with n=0 (rather than just leaving
+a gap there) should perhaps be left to the authors discretion. If the
+data contains just a few scattered bins with n=0, it sounds a good idea
+to show these explicitly. However, in a search for new
+particles/effects, some plots have many bins with n=0. It would then
+clutter up the plot to show error bars on all these points. Indeed a
+curve which passes through n=0.9 for a large number of consecutive empty
+bins would give the appearance of being satisfactory, while in fact it
+is not.
+
+6) If +-sqrt(n) were to be adopted, then the error on n=0 would be zero.
+This would mean that the point would not show up on a logarithmic plot;
+and would appear as just a point on a linear plot. We do not regard
+either of these features as ruling out this procedure.
+   The alternative is arbitrarily to choose the upper error as unity for
+n=0. This means that, provided the n=0 points are specifically plotted
+(see point 5) above), the upper limit would be visible on a logarithmic
+plot; and the point and upper error would be visible on a linear plot.
+
+7) In summary, we consider that the Pearson chi-squared error bars win
+out in terms of the properties of the intervals for all n, while
++-sqrt(n) is more in accordance with common practice. We favour the
+latter.
