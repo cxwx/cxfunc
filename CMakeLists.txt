@@ -8,7 +8,12 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # ====== Installation Directory ======
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX "$ENV{HOME}/software/install" CACHE PATH "Install path" FORCE)
+    set(CMAKE_INSTALL_PREFIX
+        "$ENV{HOME}/software/install"
+        CACHE PATH
+        "Install path"
+        FORCE
+    )
 endif()
 
 message(STATUS "Installation prefix: ${CMAKE_INSTALL_PREFIX}")
@@ -92,13 +97,17 @@ if(NOT CXFUNC_STANDALONE)
             install(
                 DIRECTORY ${module}/include/
                 DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-                FILES_MATCHING PATTERN "*.h" PATTERN "*.hh" PATTERN "*.hpp"
+                FILES_MATCHING
+                PATTERN "*.h"
+                PATTERN "*.hh"
+                PATTERN "*.hpp"
             )
         endif()
 
         # Install module headers directly in module directory
         if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${module}")
-            file(GLOB module_headers
+            file(
+                GLOB module_headers
                 ${CMAKE_CURRENT_SOURCE_DIR}/${module}/*.h
                 ${CMAKE_CURRENT_SOURCE_DIR}/${module}/*.hh
                 ${CMAKE_CURRENT_SOURCE_DIR}/${module}/*.hpp
@@ -140,6 +149,11 @@ else()
         DESTINATION cmake/CxFunc
     )
 endif()
+
+install(
+    FILES "cxHead.hh"
+    DESTINATION include/cxfunc
+)
 
 # Print summary
 message(STATUS "")
