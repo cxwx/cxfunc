@@ -38,6 +38,7 @@ set(CXFUNC_MODULES
     random
     stats
     timer
+    crypt
 )
 
 # Pass global options to subdirectories

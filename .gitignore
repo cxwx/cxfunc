@@ -4,3 +4,7 @@
 /timer/build
 /poisson/.claude
 /poisson/build
+/.harper/ignored
+/.harper-dictionary.txt
+/crypt/build
+/harper
