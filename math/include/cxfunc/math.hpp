@@ -114,7 +114,9 @@ constexpr auto AU_to_cm() -> double { return 1.496e13; }
 /* Electron mass in g */
 constexpr auto m_e_g() -> double { return 9.1093837015e-28; }
 /* natural logarithm of 10 */
-constexpr auto ln10() -> double { return std::numbers::ln10; }
+constexpr auto ln10() -> double { return 2.302585092994046; }
+}
+
 }
 
 }
