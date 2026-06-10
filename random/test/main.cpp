@@ -1,4 +1,4 @@
-#include "cxRandomSeed3.hh"
+#include "randomSeed3.hh"
 #include <iostream>
 #include <random>
 

@@ -13,10 +13,10 @@ set(CMAKE_INSTALL_PREFIX
 )
 
 # === sources ===
-set(CXRANDOM_SRCS cxRandomSeed3.cc)
+set(CXRANDOM_SRCS randomSeed3.cc)
 
 set(DICT_HEADERS
-    cxRandomSeed3.hh
+    randomSeed3.hh
 )
 
 find_package(ROOT QUIET)
@@ -26,11 +26,11 @@ if(ROOT_FOUND)
     include(${ROOT_USE_FILE})
     add_definitions(${ROOT_CXX_FLAGS})
     root_generate_dictionary(G__cxrandom ${DICT_HEADERS} LINKDEF LinkDef.h)
-    set(CXRANDOM_SRCS cxRandomSeed3.cc G__cxrandom.cxx)
+    set(CXRANDOM_SRCS randomSeed3.cc G__cxrandom.cxx)
     set(ROOT_DEPS ${ROOT_LIBRARIES})
 else()
     message(STATUS "ROOT not found, building without dictionary support.")
-    set(CXRANDOM_SRCS cxRandomSeed3.cc)
+    set(CXRANDOM_SRCS randomSeed3.cc)
     set(ROOT_DEPS "")
 endif()
 
@@ -75,7 +75,7 @@ if(NOT DEFINED CXFUNC_TOP_LEVEL_BUILD)
     )
     install(
         FILES
-            cxRandomSeed3.hh
+            randomSeed3.hh
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cxfunc
     )
     install(
