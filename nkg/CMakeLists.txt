@@ -8,23 +8,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # === dependencies ===
-find_package(ROOT QUIET)
+find_package(ROOT REQUIRED)
 
 # === sources ===
 file(GLOB sources *.cc)
 file(GLOB headers *.hh)
 
 # === ROOT dictionary ===
-if(ROOT_FOUND)
-    message(STATUS "ROOT found, enabling dictionary generation for nkg.")
-    include(${ROOT_USE_FILE})
-    add_definitions(${ROOT_CXX_FLAGS})
-    root_generate_dictionary(G__cxnkg NKG.hh LINKDEF LinkDef.h)
-    set(NKG_SRCS ${sources} G__cxnkg.cxx)
-else()
-    message(STATUS "ROOT not found, building nkg without dictionary support.")
-    set(NKG_SRCS ${sources})
-endif()
+message(STATUS "ROOT found, enabling dictionary generation for nkg.")
+include(${ROOT_USE_FILE})
+add_definitions(${ROOT_CXX_FLAGS})
+root_generate_dictionary(G__cxnkg NKG.hh LINKDEF LinkDef.h)
+set(NKG_SRCS ${sources} G__cxnkg.cxx)
 
 # === library ===
 add_library(cxnkg SHARED ${NKG_SRCS})
