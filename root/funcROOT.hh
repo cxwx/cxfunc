@@ -1,13 +1,23 @@
 #pragma once
 
 #include <ROOT/TSeq.hxx>
+#include <TArrow.h>
 #include <TAxis.h>
+#include <TCanvas.h>
+#include <TColor.h>
+#include <TEllipse.h>
 #include <TFile.h>
+#include <TGraph.h>
+#include <TGraphAsymmErrors.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <TH3.h>
+#include <TLatex.h>
+#include <TPaveText.h>
+#include <TText.h>
 #include <cmath>
 #include <ranges>
+
 // #include <ROOT/TSeq.hxx>
 
 namespace cxfunc::ROOT {
@@ -76,4 +86,73 @@ void resetLogBin(T *h, const TString &logaxis = "xyz")
     h->SetBins(nx, xl.data());
   }
 }
+
+template <class T>
+void setColorSize(  // TODO(CX) check linkdef?
+  T *x,
+  Color_t tc = kRed,
+  Float_t tcalpla = 0.5,
+  Width_t lw = 1,
+  Size_t ps = 0.04
+) {
+  x->SetLineColorAlpha(tc, tcalpla);
+  x->SetFillColorAlpha(tc, tcalpla);
+  x->SetMarkerColorAlpha(tc, tcalpla);
+  x->SetMarkerSize(ps);
+  x->SetLineWidth(lw);
+}
+
+void setColorSize(
+  TEllipse *x,
+  Color_t tc = kRed,
+  Float_t tcalpla = 0.5,
+  Width_t lw = 1
+);
+
+void centerTitle(TH1* h1);
+
+namespace draw {
+
+void upperLimit(TGraphAsymmErrors* g1);
+
+auto preliminary(
+  TPad* c1,
+  double x = 0.7,
+  double y = 0.7,
+  double angle = 30,
+  int font = 12,
+  double size = 0.1,
+  const std::string & name = "PRELIMINARY",
+  int acolor = kRed
+) -> TLatex*;
+auto preliminary2(
+  TPad* c1,
+  double x = 0.7,
+  double y = 0.7,
+  double x2 = 0.9,
+  double y2 = 0.9,
+  Float_t angle = 30,
+  Font_t font = 12,
+  Float_t size = 0.1,
+  const std::string & name = "PRELIMINARY",
+  Color_t acolor = kRed
+) -> TPaveText*;
+
+void skyMap(
+  TPad* c1,
+  const std::string & name,
+  double x0,
+  double y,
+  double x1 = 0.0,
+  double x2 = 360.0,
+  bool iftext = true,
+  Color_t acolor = kRed,
+  Style_t astyle = kCircle,
+  Size_t markerSize = 0.6,
+  Float_t textsize = 0.03,
+  Float_t textangle = 0.0
+);
+
+}
+
 }  // namespace cxfunc::ROOT

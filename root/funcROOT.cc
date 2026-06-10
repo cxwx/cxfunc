@@ -56,4 +56,123 @@ void writeLicense(TFile& file) {
   writeLicense(file, DEFAULT_LICENSE);
 }
 
+void setColorSize(TEllipse *x, Color_t tc, Float_t tcalpla, Width_t lw) {
+  x->SetLineColorAlpha(tc, tcalpla);
+  x->SetFillColorAlpha(tc, tcalpla);
+  x->SetLineWidth(lw);
+}
+
+void centerTitle(TH1* h1) {
+  h1->GetXaxis()->CenterTitle();
+  h1->GetYaxis()->CenterTitle();
+  h1->GetZaxis()->CenterTitle();
+}
+
+namespace draw {
+void upperLimit(TGraphAsymmErrors* g1) {
+  for (auto i : ::ROOT::TSeqI(g1->GetN())) {
+    double x = NAN;
+    double y = NAN;
+    double yl = NAN;
+    double yh = NAN;
+    g1->GetPoint(i, x, y);
+    yl = g1->GetErrorYlow(i);
+    yh = g1->GetErrorYhigh(i);
+    if (yl == 0.0 && yh == 0.0) {
+      auto* t1 = new TArrow(x, y, x, y / 2.0, 0.01, ">");
+      t1->SetBit(kCanDelete);  // TODO(CX): check memory
+      t1->SetLineColor(g1->GetLineColor());
+      t1->SetFillColor(g1->GetFillColor());
+      t1->SetLineWidth(g1->GetLineWidth());
+      t1->SetLineStyle(g1->GetLineStyle());
+    }
+  }
+}
+auto preliminary(
+  TPad* c1,
+  double x,
+  double y,
+  double angle,
+  int font,
+  double size,
+  const std::string & name,
+  int acolor
+) -> TLatex* {
+  c1->cd();
+  auto* l1 = new TLatex(x, y, name.c_str());
+  l1->SetBit(kCanDelete);
+  l1->SetTextFont(font);
+  l1->SetTextSize(size);
+  l1->SetTextAngle(angle);
+  l1->SetTextColor(acolor);
+  l1->Draw("same");
+  return l1;
+}
+auto preliminary2(
+  TPad* c1,
+  double x1,
+  double y1,
+  double x2,
+  double y2,
+  Float_t angle,
+  Font_t font,
+  Float_t size,
+  const string & name,
+  Color_t acolor
+) -> TPaveText* {
+  c1->cd();
+  auto* l1 = new TPaveText(x1, y1, x2, y2, "NB");
+  l1->SetFillColor(kGray);
+  l1->AddText(name.c_str());
+  l1->SetTextFont(font);
+  l1->SetTextSize(size);
+  l1->SetTextAngle(angle);
+  l1->SetTextColor(acolor);
+  l1->SetLineColor(kRed);
+  l1->SetLineWidth(3);
+  l1->Draw();
+  return l1;
+}
+
+void skyMap(
+  TPad* c1,
+  const string & name,
+  double x,
+  double y,
+  double x1,
+  double x2,
+  bool iftext,
+  Color_t acolor,
+  Style_t astyle,
+  Size_t markerSize,
+  Float_t textsize,
+  Float_t textangle
+) {
+  c1->cd();
+  while (x > x2) {
+    x -= 360.0;
+  }
+  while (x < x1) {
+    x += 360.0;
+  }
+  auto* g1 = new TGraph(1);
+  g1->SetBit(kCanDelete);
+  g1->SetPoint(0, x, y);
+  g1->SetMarkerSize(markerSize);
+  g1->SetMarkerStyle(astyle);
+  g1->SetName(name.c_str());
+  g1->SetMarkerColor(acolor);
+  g1->Draw("Psame");
+
+  if (iftext) {
+    auto* t1 = new TText(x, y, name.c_str());
+    t1->SetBit(kCanDelete);
+    t1->SetTextSize(textsize);
+    t1->SetTextColor(acolor);
+    t1->SetTextAngle(textangle);
+    t1->Draw("same");
+  }
+}
+}
+
 }
