@@ -28,6 +28,8 @@ option(CXFUNC_STANDALONE "Standalone installation (includes cmake configs)" OFF)
 set(CXFUNC_TOP_LEVEL_BUILD TRUE CACHE INTERNAL "Top-level CMake build")
 
 # ====== Modules ======
+find_package(ROOT QUIET)
+
 set(CXFUNC_MODULES
     maps
     compress
@@ -40,6 +42,12 @@ set(CXFUNC_MODULES
     timer
     crypt
 )
+
+# Add ROOT-dependent modules
+if(ROOT_FOUND)
+    list(APPEND CXFUNC_MODULES nkg)
+    message(STATUS "ROOT found, adding nkg module")
+endif()
 
 # Pass global options to subdirectories
 foreach(module ${CXFUNC_MODULES})
@@ -132,6 +140,8 @@ if(NOT CXFUNC_STANDALONE)
                 ${CMAKE_BINARY_DIR}/config/libcxconfig.rootmap
                 ${CMAKE_BINARY_DIR}/compress/libcxfileio_rdict.pcm
                 ${CMAKE_BINARY_DIR}/compress/libcxfileio.rootmap
+                ${CMAKE_BINARY_DIR}/nkg/libcxnkg_rdict.pcm
+                ${CMAKE_BINARY_DIR}/nkg/libcxnkg.rootmap
             DESTINATION ${CMAKE_INSTALL_LIBDIR}
             OPTIONAL
         )

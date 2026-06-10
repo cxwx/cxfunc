@@ -8,3 +8,5 @@
 /.harper-dictionary.txt
 /crypt/build
 /harper
+/nkg/.clang-tidy
+/nkg/build
