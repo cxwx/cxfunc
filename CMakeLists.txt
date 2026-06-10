@@ -45,8 +45,8 @@ set(CXFUNC_MODULES
 
 # Add ROOT-dependent modules
 if(ROOT_FOUND)
-    list(APPEND CXFUNC_MODULES nkg swapbyte)
-    message(STATUS "ROOT found, adding nkg and swapbyte modules")
+    list(APPEND CXFUNC_MODULES nkg swapbyte root)
+    message(STATUS "ROOT found, adding nkg, swapbyte and root modules")
 endif()
 
 # Pass global options to subdirectories
@@ -95,6 +95,9 @@ if(NOT CXFUNC_STANDALONE)
     if(TARGET cxnkg)
         list(APPEND CXFUNC_INSTALL_TARGETS cxnkg)
     endif()
+    if(TARGET cxfunc_root)
+        list(APPEND CXFUNC_INSTALL_TARGETS cxfunc_root)
+    endif()
 
     # Install all libraries
     if(CXFUNC_INSTALL_TARGETS)
@@ -113,7 +116,7 @@ if(NOT CXFUNC_STANDALONE)
                 DIRECTORY ${module}/include/
                 DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
                 FILES_MATCHING
-                PATTERN "*.h"
+                # PATTERN "*.h"  # removed LinkDef.h
                 PATTERN "*.hh"
                 PATTERN "*.hpp"
             )
@@ -123,7 +126,7 @@ if(NOT CXFUNC_STANDALONE)
         if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${module}")
             file(
                 GLOB module_headers
-                ${CMAKE_CURRENT_SOURCE_DIR}/${module}/*.h
+                # ${CMAKE_CURRENT_SOURCE_DIR}/${module}/*.h
                 ${CMAKE_CURRENT_SOURCE_DIR}/${module}/*.hh
                 ${CMAKE_CURRENT_SOURCE_DIR}/${module}/*.hpp
             )
@@ -150,6 +153,8 @@ if(NOT CXFUNC_STANDALONE)
                 ${CMAKE_BINARY_DIR}/nkg/libcxnkg.rootmap
                 ${CMAKE_BINARY_DIR}/swapbyte/libcxswapbyte_rdict.pcm
                 ${CMAKE_BINARY_DIR}/swapbyte/libcxswapbyte.rootmap
+                ${CMAKE_BINARY_DIR}/root/libcxfunc_root_rdict.pcm
+                ${CMAKE_BINARY_DIR}/root/libcxfunc_root.rootmap
             DESTINATION ${CMAKE_INSTALL_LIBDIR}
             OPTIONAL
         )
