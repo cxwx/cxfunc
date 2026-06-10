@@ -10,3 +10,5 @@
 /harper
 /nkg/.clang-tidy
 /nkg/build
+/swapbyte/build
+/swapbyte/.clang-tidy

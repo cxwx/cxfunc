@@ -45,8 +45,8 @@ set(CXFUNC_MODULES
 
 # Add ROOT-dependent modules
 if(ROOT_FOUND)
-    list(APPEND CXFUNC_MODULES nkg)
-    message(STATUS "ROOT found, adding nkg module")
+    list(APPEND CXFUNC_MODULES nkg swapbyte)
+    message(STATUS "ROOT found, adding nkg and swapbyte modules")
 endif()
 
 # Pass global options to subdirectories
@@ -88,6 +88,12 @@ if(NOT CXFUNC_STANDALONE)
     endif()
     if(TARGET cxfunc_stats)
         list(APPEND CXFUNC_INSTALL_TARGETS cxfunc_stats)
+    endif()
+    if(TARGET cxswapbyte)
+        list(APPEND CXFUNC_INSTALL_TARGETS cxswapbyte)
+    endif()
+    if(TARGET cxnkg)
+        list(APPEND CXFUNC_INSTALL_TARGETS cxnkg)
     endif()
 
     # Install all libraries
@@ -142,6 +148,8 @@ if(NOT CXFUNC_STANDALONE)
                 ${CMAKE_BINARY_DIR}/compress/libcxfileio.rootmap
                 ${CMAKE_BINARY_DIR}/nkg/libcxnkg_rdict.pcm
                 ${CMAKE_BINARY_DIR}/nkg/libcxnkg.rootmap
+                ${CMAKE_BINARY_DIR}/swapbyte/libcxswapbyte_rdict.pcm
+                ${CMAKE_BINARY_DIR}/swapbyte/libcxswapbyte.rootmap
             DESTINATION ${CMAKE_INSTALL_LIBDIR}
             OPTIONAL
         )
