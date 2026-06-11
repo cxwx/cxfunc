@@ -49,21 +49,57 @@ endif()
 
 # === install ===
 if(NOT DEFINED CXFUNC_TOP_LEVEL_BUILD)
-    set(CMAKE_INSTALL_PREFIX $ENV{HOME}/software/install/)
-    install(FILES cxFileIO.hh DESTINATION include/cxfunc/)
+    include(GNUInstallDirs)
+    include(CMakePackageConfigHelpers)
 
+    # Install library
+    install(
+        TARGETS cxfileio
+        EXPORT cxfileioTargets
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    )
+
+    # Install headers
+    install(FILES cxFileIO.hh DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cxfunc)
+
+    # Install ROOT dictionary files
     if(ROOT_FOUND)
         install(
             FILES
                 ${CMAKE_BINARY_DIR}/libcxfileio_rdict.pcm
                 ${CMAKE_BINARY_DIR}/libcxfileio.rootmap
-            DESTINATION lib/
+            DESTINATION ${CMAKE_INSTALL_LIBDIR}
         )
     endif()
+
+    # Export targets
     install(
-        TARGETS cxfileio
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
+        EXPORT cxfileioTargets
+        NAMESPACE cxfileio::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/cxfileio
+    )
+
+    # Create package version file
+    write_basic_package_version_file(
+        "${CMAKE_CURRENT_BINARY_DIR}/cxfileioConfigVersion.cmake"
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY AnyNewerVersion
+    )
+
+    # Create package config file
+    configure_package_config_file(
+        "${CMAKE_CURRENT_LIST_DIR}/cmake/cxfileioConfig.in.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/cxfileioConfig.cmake"
+        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/cxfileio
+    )
+
+    # Install package config files
+    install(
+        FILES
+            "${CMAKE_CURRENT_BINARY_DIR}/cxfileioConfig.cmake"
+            "${CMAKE_CURRENT_BINARY_DIR}/cxfileioConfigVersion.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/cxfileio
     )
 endif()

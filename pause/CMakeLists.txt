@@ -37,22 +37,57 @@ endif()
 
 # === install ===
 if(NOT DEFINED CXFUNC_TOP_LEVEL_BUILD)
-    set(CMAKE_INSTALL_PREFIX $ENV{HOME}/software/install/)
-    install(FILES ${headers} DESTINATION include/cxfunc/)
+    include(GNUInstallDirs)
+    include(CMakePackageConfigHelpers)
+
+    # Install library
     install(
         TARGETS cxfunc_pause
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
+        EXPORT cxfunc_pauseTargets
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     )
 
-    # Only install ROOT files if ROOT was found
+    # Install headers
+    install(FILES ${headers} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cxfunc)
+
+    # Install ROOT dictionary files
     if(ROOT_FOUND)
         install(
             FILES
-            ${CMAKE_BINARY_DIR}/libcxfunc_pause_rdict.pcm
-            ${CMAKE_BINARY_DIR}/libcxfunc_pause.rootmap
-            DESTINATION lib/
+                ${CMAKE_BINARY_DIR}/libcxfunc_pause_rdict.pcm
+                ${CMAKE_BINARY_DIR}/libcxfunc_pause.rootmap
+            DESTINATION ${CMAKE_INSTALL_LIBDIR}
         )
     endif()
+
+    # Export targets
+    install(
+        EXPORT cxfunc_pauseTargets
+        NAMESPACE cxfunc_pause::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/cxfunc_pause
+    )
+
+    # Create package version file
+    write_basic_package_version_file(
+        "${CMAKE_CURRENT_BINARY_DIR}/cxfunc_pauseConfigVersion.cmake"
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY AnyNewerVersion
+    )
+
+    # Create package config file
+    configure_package_config_file(
+        "${CMAKE_CURRENT_LIST_DIR}/cmake/cxfunc_pauseConfig.in.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/cxfunc_pauseConfig.cmake"
+        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/cxfunc_pause
+    )
+
+    # Install package config files
+    install(
+        FILES
+            "${CMAKE_CURRENT_BINARY_DIR}/cxfunc_pauseConfig.cmake"
+            "${CMAKE_CURRENT_BINARY_DIR}/cxfunc_pauseConfigVersion.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/cxfunc_pause
+    )
 endif()

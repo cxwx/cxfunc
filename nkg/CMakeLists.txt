@@ -28,19 +28,55 @@ target_link_libraries(cxnkg PUBLIC ${ROOT_LIBRARIES})
 
 # === install ===
 if(NOT DEFINED CXFUNC_TOP_LEVEL_BUILD)
-    set(CMAKE_INSTALL_PREFIX $ENV{HOME}/software/install/)
-    install(FILES ${headers} DESTINATION include/cxfunc/)
+    include(GNUInstallDirs)
+    include(CMakePackageConfigHelpers)
 
-    install(
-        FILES
-        ${CMAKE_BINARY_DIR}/libcxnkg_rdict.pcm
-        ${CMAKE_BINARY_DIR}/libcxnkg.rootmap
-        DESTINATION lib/
-    )
+    # Install library
     install(
         TARGETS cxnkg
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
+        EXPORT cxnkgTargets
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    )
+
+    # Install headers
+    install(FILES ${headers} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cxfunc)
+
+    # Install ROOT dictionary files
+    install(
+        FILES
+            ${CMAKE_BINARY_DIR}/libcxnkg_rdict.pcm
+            ${CMAKE_BINARY_DIR}/libcxnkg.rootmap
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    )
+
+    # Export targets
+    install(
+        EXPORT cxnkgTargets
+        NAMESPACE cxnkg::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/cxnkg
+    )
+
+    # Create package version file
+    write_basic_package_version_file(
+        "${CMAKE_CURRENT_BINARY_DIR}/cxnkgConfigVersion.cmake"
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY AnyNewerVersion
+    )
+
+    # Create package config file
+    configure_package_config_file(
+        "${CMAKE_CURRENT_LIST_DIR}/cmake/cxnkgConfig.in.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/cxnkgConfig.cmake"
+        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/cxnkg
+    )
+
+    # Install package config files
+    install(
+        FILES
+            "${CMAKE_CURRENT_BINARY_DIR}/cxnkgConfig.cmake"
+            "${CMAKE_CURRENT_BINARY_DIR}/cxnkgConfigVersion.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/cxnkg
     )
 endif()
