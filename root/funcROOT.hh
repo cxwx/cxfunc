@@ -1,19 +1,24 @@
 #pragma once
 
+#include <ROOT/RDataFrame.hxx>
 #include <ROOT/TSeq.hxx>
+#include <TASImage.h>
 #include <TArrow.h>
 #include <TAxis.h>
 #include <TCanvas.h>
 #include <TColor.h>
 #include <TEllipse.h>
+#include <TF1.h>
 #include <TFile.h>
 #include <TGaxis.h>
 #include <TGraph.h>
 #include <TGraphAsymmErrors.h>
+#include <TGraphErrors.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <TH3.h>
 #include <TLatex.h>
+#include <TMatrix.h>
 #include <TPaveText.h>
 #include <TText.h>
 #include <cmath>
@@ -89,7 +94,7 @@ void resetLogBin(T *h, const TString &logaxis = "xyz")
 }
 
 template <class T>
-void setColorSize(  // TODO(CX) check linkdef?
+void setColorSize(  // TODO(CX): check LinkDef?
   T *x,
   Color_t tc = kRed,
   Float_t tcalpla = 0.5,
@@ -179,5 +184,63 @@ void reverseX(TArrow* e1, TAxis* haxis);
 auto reverseX(double e1, TAxis* haxis) -> double;
 }
 
+auto imageToTH2D(TASImage* img, double (*fcn)(double), double xmin, double xmax, double ymin, double ymax) -> TH2D*;
+template<typename T1, typename T2>
+
+auto cxTH2toMatrix(T2 *h2, TString op = "C") -> TMatrixT<T1> {
+  static_assert(
+      (std::is_same_v<T1, double> && std::is_same_v<T2, TH2D>
+       || std::is_same_v<T1, float> && std::is_same_v<T2, TH2F>
+       || std::is_same_v<T1, int> && std::is_same_v<T2, TH2I>),
+      "cxTH2toMatrix type incorrect");
+  auto nx = h2->GetNbinsX();
+  auto ny = h2->GetNbinsY();
+  return TMatrixT<T1>(nx + 2, ny + 2, h2->GetArray(), op);
+}
+
+namespace conv {
+void TH1Scale(TH1*, double val = 1);
+void TH2XScale(TH2*, double val = 1);
+void TH2YScale(TH2*, double val = 1);
+void TH2XYScale(TH2*, double val = 1);
+void THSetAll(TH1*, double val = 0);
+void THAddAll(TH1*, double val = 1.0);
+
+auto convertGraph(TGraph* in, void (*)(double& x, double& y)) -> TGraph*;
+auto convertGraph(TGraphErrors* in, void (*)(double& x, double& y)) -> TGraphErrors*;
+auto convertGraph(TGraphAsymmErrors* in, void (*)(double& x, double& y)) -> TGraphAsymmErrors*;
+
+// harper:ignore
+// void Mul(double& x, double& y);
+// template <typename T>
+// void Mul(T* g) requires(std::is_base_of_v<TGraph, T>) {
+//   T* g2 = cxConvertGraph(g, Mul);
+//   (*g) = (*g2);
+//   delete g2;
+// }
+
+void powerIndex(TH1* h1, double index);
+void powerIndexlg(TH1* h1, double index);
+void powerIndex(::ROOT::RDF::RResultPtr<::TH1D> h1, double index);
+void powerIndex(TGraph* g1, double index);
+void powerIndex(TGraphErrors* g1, double index);
+void powerIndex(TGraphAsymmErrors* g1, double index);
+auto powerIndex(TF1* fin, double index) -> TF1*;
+
+void cxDnDE(TH1D* h1);
+
+void aitoff(double& x, double& y);
+void aitoff360(double& x, double& y);
+
+template <typename T>
+auto aitoff(T* in) -> T* requires(std::is_base_of_v<TGraph, T>) {
+  return convertGraph(in, aitoff);
+}
+template <typename T>
+auto aitoff360(T* in) -> T* requires(std::is_base_of_v<TGraph, T>) {
+  return convertGraph(in, aitoff360);
+}
+
+}
 
 }  // namespace cxfunc::ROOT

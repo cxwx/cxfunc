@@ -4,6 +4,7 @@
 #include <exception>
 
 using namespace std;
+using namespace TMath;
 
 namespace {
 constinit auto DEFAULT_LICENSE = R"(
@@ -33,7 +34,7 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 void removeCurrentAxis(TAxis* axis) {
   axis->SetLabelOffset(999);
   axis->SetTickLength(0);
-  gPad->Update();  // need check
+  gPad->Update();  // need to check
 }
 void copyCurrentAxisStyle(TAxis* ax1, TGaxis* ax2) {
   ax2->SetLabelSize(ax1->GetLabelSize());
@@ -327,11 +328,280 @@ void reverseX(TArrow *e1, TAxis *haxis) {
   e1->SetX2(xm - e1->GetX2());
 }
 
-double reverseX(double e1, TAxis *haxis) {
+auto reverseX(double e1, TAxis *haxis) -> double {
   double xmax = haxis->GetXmax();
   double xmin = haxis->GetXmin();
   double x2 = xmax + xmin;
   return x2 - e1;
 }
-} // namespace reverse
+}  // namespace reverse
+
+auto imageToTH2D(TASImage* img, double (*fcn)(double), double xmin, double xmax, double ymin, double ymax) -> TH2D* {
+  int ny = static_cast<int>(img->GetHeight());
+  int nx = static_cast<int>(img->GetWidth());
+  const unsigned* argb = img->GetArgbArray();
+
+  TH2D* h2 = new TH2D("h", "histogram", nx, xmin, xmax, ny, ymin, ymax);
+
+  for (auto row : ::ROOT::TSeqI(nx)) {
+    for (auto col : ::ROOT::TSeqI(ny)) {
+      int index = (col * nx) + row;
+      float grey = static_cast<float>(argb[index] & 0xff) / 256;
+      h2->SetBinContent(row + 1, ny - col, fcn(grey));
+    }
+  }
+  return h2;
+}
+
+namespace conv {
+void TH1Scale(TH1* h1, double val) {
+  auto n = h1->GetXaxis()->GetNbins();
+  double all = h1->Integral();
+  double average = n * val / all;
+  h1->Scale(average);
+}
+
+void TH2XScale(TH2* h2, double val) {
+  auto nx = h2->GetXaxis()->GetNbins();
+  auto ny = h2->GetYaxis()->GetNbins();
+  for (auto j : ::ROOT::TSeqI(1, ny + 1)) {
+    double all = h2->Integral(1, nx, j, j);
+    double xfactor = nx * val / all;
+    for (auto i : ::ROOT::TSeqI(1, nx + 1)) {
+      h2->SetBinContent(i, j, h2->GetBinContent(i, j) * xfactor);
+    }
+  }
+}
+void TH2YScale(TH2* h2, double val) {
+  auto nx = h2->GetXaxis()->GetNbins();
+  auto ny = h2->GetYaxis()->GetNbins();
+  for (auto j : ::ROOT::TSeqI(1, nx + 1)) {
+    double all = h2->Integral(j, j, 1, ny);
+    double yfactor = ny * val / all;
+    for (auto i : ::ROOT::TSeqI(1, ny + 1)) {
+      h2->SetBinContent(j, i, h2->GetBinContent(j, i) * yfactor);
+    }
+  }
+}
+
+void TH2XYScale(TH2* h2, double val) {
+  auto nx = h2->GetNbinsX();
+  auto ny = h2->GetNbinsY();
+  h2->Scale(val / h2->Integral() * nx * ny);
+}
+
+void THSetAll(TH1* h1, double val) {
+  for (auto i : ::ROOT::TSeqI(1, h1->GetNcells() + 1)) {
+    h1->SetBinContent(i, val);
+  }
+}
+
+void THAddAll(TH1* h1, double val) {
+  for (auto i : ::ROOT::TSeqI(1, h1->GetNcells() + 1)) {
+    h1->SetBinContent(i, h1->GetBinContent(i) + val);
+  }
+}
+
+auto convertGraph(TGraph* in, void (*fcn)(double&, double&)) -> TGraph* {
+  int n = in->GetN();
+  auto* gout = new TGraph(n);
+  for (auto i : ::ROOT::TSeqI(n)) {
+    double x = NAN;
+    double y = NAN;
+    in->GetPoint(i, x, y);
+    fcn(x, y);
+    gout->SetPoint(i, x, y);
+  }
+  return gout;
+}
+
+auto convertGraph(TGraphErrors* in, void (*fcn)(double&, double&)) -> TGraphErrors* {
+  // need to modify
+  int n = in->GetN();
+  auto* gout = new TGraphErrors(n);
+  for (auto i : ::ROOT::TSeqI(n)) {
+    double x = NAN;
+    double y = NAN;
+    in->GetPoint(i, x, y);
+    auto dx = in->GetErrorX(i);
+    auto dy = in->GetErrorY(i);
+    fcn(x, y);
+    auto x1 = x - dx;
+    auto y1 = y;
+    auto x2 = x + dx;
+    auto y2 = y;
+    auto x3 = x;
+    auto y3 = y - dy;
+    auto x4 = x;
+    auto y4 = y + dy;
+    fcn(x1, y1);
+    fcn(x2, y2);
+    fcn(x3, y3);
+    fcn(x4, y4);
+    gout->SetPoint(i, x, y);
+    gout->SetPointError(i, (x2 - x1) / 2.0, (y4 - y3) / 2.0);
+  }
+  return gout;
+}
+
+auto convertGraph(TGraphAsymmErrors* in, void (*fcn)(double& x, double& y)) -> TGraphAsymmErrors* {
+  int n = in->GetN();
+  auto* gout = new TGraphAsymmErrors(n);
+
+  for (auto i : ::ROOT::TSeqI(n)) {
+    double x = NAN;
+    double y = NAN;
+    double xlow = NAN;
+    double xhigh = NAN;
+    double ylow = NAN;
+    double yhigh = NAN;
+    in->GetPoint(i, x, y);
+    xlow = x - in->GetErrorXlow(i);
+    xhigh = x + in->GetErrorXhigh(i);
+    ylow = y - in->GetErrorYlow(i);
+    yhigh = y + in->GetErrorYhigh(i);
+
+    double ykeep = y;
+    fcn(xlow, ykeep);
+    ykeep = y;
+    fcn(xhigh, ykeep);
+    double xkeep = x;
+    fcn(xkeep, ylow);
+    xkeep = x;
+    fcn(xkeep, yhigh);
+    fcn(x, y);
+
+    double xerrl = x - xlow;
+    double xerrh = x + xhigh;
+    double yerrl = y - ylow;
+    double yerrh = y + yhigh;
+
+    gout->SetPoint(i, x, y);
+    gout->SetPointError(i, xerrl, xerrh, yerrl, yerrh);
+  }
+  return gout;
+}
+
+void powerIndex(TH1* h1, double index) {
+  for (auto i : ::ROOT::TSeqI(1, h1->GetNbinsX() + 1)) {
+    double x = h1->GetBinCenter(i);
+    double y = h1->GetBinContent(i);
+    double ye = h1->GetBinError(i);
+    double tmp = pow(x, index);
+    h1->SetBinContent(i, y * tmp);
+    h1->SetBinError(i, ye * tmp);
+  }
+}
+
+void powerIndexlg(TH1* h1, double index) {
+  for (auto i : ::ROOT::TSeqI(1, h1->GetNbinsX() + 1)) {
+    double x1 = pow(10., h1->GetBinLowEdge(i));
+    double x2 = pow(10., h1->GetBinLowEdge(i + 1));
+    double x = (x1 + x2) / 2.0;
+    double y = h1->GetBinContent(i);
+    double ye = h1->GetBinError(i);
+    double tmp = pow(x, index);
+    h1->SetBinContent(i, y * tmp);
+    h1->SetBinError(i, ye * tmp);
+  }
+}
+
+void powerIndex(::ROOT::RDF::RResultPtr<::TH1D> h1, double index) {
+  for (auto i : ::ROOT::TSeqI(1, h1->GetNbinsX() + 1)) {
+    double x = h1->GetBinCenter(i);
+    double y = h1->GetBinContent(i);
+    double ye = h1->GetBinError(i);
+    double tmp = pow(x, index);
+    h1->SetBinContent(i, y * tmp);
+    h1->SetBinError(i, ye * tmp);
+  }
+}
+void powerIndex(TGraph* g1, double index) {
+  for (auto i : ::ROOT::TSeqI(g1->GetN())) {
+    double x = NAN;
+    double y = NAN;
+    g1->GetPoint(i, x, y);
+    double tmp = pow(x, index);
+    g1->SetPoint(i, x, y * tmp);
+  }
+}
+void powerIndex(TGraphErrors* g1, double index) {
+  for (int i = 0; i < g1->GetN(); i++) {
+    double x = NAN;
+    double y = NAN;
+    double yerr = NAN;
+    double xerr = NAN;
+    g1->GetPoint(i, x, y);
+    xerr = g1->GetErrorX(i);
+    yerr = g1->GetErrorY(i);
+    double tmp = pow(x, index);
+    g1->SetPoint(i, x, y * tmp);
+    g1->SetPointError(i, xerr, yerr * tmp);
+  }
+}
+
+void powerIndex(TGraphAsymmErrors* g1, double index) {
+  for (int i = 0; i < g1->GetN(); i++) {
+    double x = NAN;
+    double y = NAN;
+    double yl = NAN;
+    double yh = NAN;
+    g1->GetPoint(i, x, y);
+    double tmp = pow(x, index);
+    yl = g1->GetErrorYlow(i);
+    yh = g1->GetErrorYhigh(i);
+    g1->SetPoint(i, x, y * tmp);
+    g1->SetPointEYlow(i, yl * tmp);
+    g1->SetPointEYhigh(i, yh * tmp);
+  }
+}
+
+auto powerIndex(TF1* fin, double index) -> TF1* {
+  double xmin = NAN;
+  double xmax = NAN;
+  fin->GetRange(xmin, xmax);
+  auto* fout = new TF1(
+      Form("%s_index_%.2f", fin->GetName(), index),
+      [fin, index](double* x, double*) { return fin->Eval(x[0]) * pow(x[0], index); }, xmin, xmax,
+      0);
+  return fout;
+}
+
+void cxDnDE(TH1D* h1) {
+  for (int i : ::ROOT::TSeqI(1, h1->GetNbinsX() + 1)) {
+    auto delta = h1->GetXaxis()->GetBinWidth(i);
+    h1->SetBinContent(i, h1->GetBinContent(i) / delta);
+    h1->SetBinError(i, h1->GetBinError(i) / delta);
+  }
+}
+
+void aitoff(double& x, double& y) {
+  // get from https://root-forum.cern.ch/t/problem-drawing-cxAitoff-and-tgraph-together/6498
+  double alpha2 = (x / 2) * DegToRad();
+  double delta = y * DegToRad();
+  double r2 = Sqrt2();
+  double f = 2 * r2 / Pi();
+  double cdec = cos(delta);
+  double denom = Sqrt(1. + (cdec * cos(alpha2)));
+  if (denom == 0) {
+    Warning("aitoff", "err @ cxAitoff cx : denom = %f", denom);
+  }
+  if (f == 0) {
+    Warning("aitoff", "err @ cxAitoff cx : f= %f", f);
+  }
+  x = cdec * Sin(alpha2) * 2. * r2 / denom;
+  y = Sin(delta) * r2 / denom;
+  x *= RadToDeg() / f;
+  y *= RadToDeg() / f;
+}
+
+void aitoff360(double& x, double& y) {
+  x -= 180.0;
+  aitoff(x, y);
+  x += 180.0;
+}
+
+
+}
+
 }
