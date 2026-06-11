@@ -153,6 +153,18 @@ void skyMap(
   Float_t textangle = 0.0
 );
 
+auto skymapCircle(
+  double x,
+  double y,
+  double r,
+  int ndelta = 100,
+  const std::string & theText = "",
+  Color_t color = kRed,
+  double forError = 0.0001,
+  Width_t lw = 1,
+  Style_t ls = kSolid
+) -> TGraph *;
+
 }
 
 }  // namespace cxfunc::ROOT

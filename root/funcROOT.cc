@@ -1,5 +1,6 @@
 #include "funcROOT.hh"
 #include <TError.h>
+#include <TMath.h>
 
 using namespace std;
 
@@ -172,6 +173,57 @@ void skyMap(
     t1->SetTextAngle(textangle);
     t1->Draw("same");
   }
+}
+
+auto skymapCircle(
+  double x,
+  double y,
+  double r,
+  int ndelta,
+  const string & theText,
+  Color_t color,
+  double forError,
+  Width_t lw,
+  Style_t ls
+) {
+  double ra0 = x;
+  double dec0 = y;
+  double decmin = dec0 - r;
+  double delta = 2 * r / ndelta;
+  auto * theGraph = new TGraph((2*ndelta) +1);
+
+  for (int i = 0; i <= ndelta; i++) {
+    double dec = decmin + (i * delta);
+    if (i == ndelta) {
+      dec -= forError;  // some bug
+    }
+    if (i == 0) {
+      dec += forError;
+    }
+    if (dec > 90.0) {
+      dec -= forError;
+    }
+    if (dec < -90.0) {
+      dec += forError;
+    }
+    using TMath::DegToRad;
+    using TMath::RadToDeg;
+    double w = RadToDeg() * (acos((cos(r * DegToRad()) - sin(dec0 * DegToRad()) * sin(dec * DegToRad())) / (cos(dec0 * DegToRad()) * cos(dec * DegToRad()))));
+    double ra1 = ra0 + w;
+    double ra2 = ra0 - w;
+    theGraph->SetPoint(i, ra1, dec);
+    theGraph->SetPoint((2 * ndelta) + 1 - i, ra2, dec);
+    if (i == 0) {
+      theGraph->SetPoint((2 * ndelta) + 2, ra1, dec);
+    }
+  }
+  theGraph->SetLineColor(color);
+  theGraph->SetMarkerColor(color);
+  theGraph->SetLineWidth(lw);
+  theGraph->SetLineStyle(ls);
+  theGraph->SetName(theText.c_str());
+
+  return theGraph;
 }
 }
 

@@ -11,5 +11,6 @@
 #pragma link C++ function cxfunc::ROOT::draw::preliminary;
 #pragma link C++ function cxfunc::ROOT::draw::preliminary2;
 #pragma link C++ function cxfunc::ROOT::draw::skyMap;
+#pragma link C++ function cxfunc::ROOT::draw::skymapCircle;
 
 #endif
