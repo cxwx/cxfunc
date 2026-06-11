@@ -41,12 +41,14 @@ set(CXFUNC_MODULES
     stats
     timer
     crypt
+    swapbyte
+    pause
 )
 
 # Add ROOT-dependent modules
 if(ROOT_FOUND)
-    list(APPEND CXFUNC_MODULES nkg swapbyte root)
-    message(STATUS "ROOT found, adding nkg, swapbyte and root modules")
+    list(APPEND CXFUNC_MODULES nkg root)
+    message(STATUS "ROOT found, adding nkg, swapbyte, root and pause modules")
 endif()
 
 # Pass global options to subdirectories
@@ -97,6 +99,9 @@ if(NOT CXFUNC_STANDALONE)
     endif()
     if(TARGET cxfunc_root)
         list(APPEND CXFUNC_INSTALL_TARGETS cxfunc_root)
+    endif()
+    if(TARGET cxfunc_pause)
+        list(APPEND CXFUNC_INSTALL_TARGETS cxfunc_pause)
     endif()
 
     # Install all libraries
@@ -155,6 +160,8 @@ if(NOT CXFUNC_STANDALONE)
                 ${CMAKE_BINARY_DIR}/swapbyte/libcxswapbyte.rootmap
                 ${CMAKE_BINARY_DIR}/root/libcxfunc_root_rdict.pcm
                 ${CMAKE_BINARY_DIR}/root/libcxfunc_root.rootmap
+                ${CMAKE_BINARY_DIR}/pause/libcxfunc_pause_rdict.pcm
+                ${CMAKE_BINARY_DIR}/pause/libcxfunc_pause.rootmap
             DESTINATION ${CMAKE_INSTALL_LIBDIR}
             OPTIONAL
         )
