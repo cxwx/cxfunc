@@ -18,3 +18,6 @@
 /root/.clang-tidy
 /pause/.clang-tidy
 /pause/build
+/atomsphere/readme.md
+/atomsphere/p1_cal.cpp
+/atomsphere/build

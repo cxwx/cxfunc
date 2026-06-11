@@ -47,8 +47,8 @@ set(CXFUNC_MODULES
 
 # Add ROOT-dependent modules
 if(ROOT_FOUND)
-    list(APPEND CXFUNC_MODULES nkg root)
-    message(STATUS "ROOT found, adding nkg, swapbyte, root and pause modules")
+    list(APPEND CXFUNC_MODULES nkg root atomsphere)
+    message(STATUS "ROOT found, adding nkg, swapbyte, root, pause and atomsphere modules")
 endif()
 
 # Pass global options to subdirectories
@@ -103,6 +103,9 @@ if(NOT CXFUNC_STANDALONE)
     if(TARGET cxfunc_pause)
         list(APPEND CXFUNC_INSTALL_TARGETS cxfunc_pause)
     endif()
+    if(TARGET cxatomsphere)
+        list(APPEND CXFUNC_INSTALL_TARGETS cxatomsphere)
+    endif()
 
     # Install all libraries
     if(CXFUNC_INSTALL_TARGETS)
@@ -146,6 +149,20 @@ if(NOT CXFUNC_STANDALONE)
 
     # Install ROOT dictionaries
     if(ROOT_FOUND)
+        include_directories(
+            ${ROOT_INCLUDE_DIRS}/
+        )
+        add_executable(cximg2png cximg2png.cpp)
+        target_link_libraries(cximg2png ${ROOT_LIBRARIES})
+        install(
+            TARGETS cximg2png
+            EXPORT ${PROJECT_NAME}Targets
+            RUNTIME DESTINATION bin
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        )
+
+
         install(
             FILES
                 ${CMAKE_BINARY_DIR}/random/libcxrandom_rdict.pcm
@@ -162,6 +179,8 @@ if(NOT CXFUNC_STANDALONE)
                 ${CMAKE_BINARY_DIR}/root/libcxfunc_root.rootmap
                 ${CMAKE_BINARY_DIR}/pause/libcxfunc_pause_rdict.pcm
                 ${CMAKE_BINARY_DIR}/pause/libcxfunc_pause.rootmap
+                ${CMAKE_BINARY_DIR}/atomsphere/libcxatomsphere_rdict.pcm
+                ${CMAKE_BINARY_DIR}/atomsphere/libcxatomsphere.rootmap
             DESTINATION ${CMAKE_INSTALL_LIBDIR}
             OPTIONAL
         )
