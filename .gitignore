@@ -22,3 +22,5 @@
 /atomsphere/p1_cal.cpp
 /atomsphere/build
 /compile_commands.json
+/io/.clang-tidy
+/io/build
