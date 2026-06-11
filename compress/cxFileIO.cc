@@ -1,4 +1,3 @@
-// cspell:disable
 #include "cxFileIO.hh"
 
 #include <boost/iostreams/categories.hpp>

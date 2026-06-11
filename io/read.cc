@@ -5,6 +5,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -16,7 +17,7 @@ void cxfunc::read::errorexit(int count, ...) {
   while ((count--) != 0) { cerr << args << " "; }
   va_end(args);
   cerr << '\n';
-  exit(count);
+  std::terminate();
 }
 
 auto cxfunc::read::striget(const string &aString, int n) -> int {
