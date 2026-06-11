@@ -1,6 +1,7 @@
 #include "funcROOT.hh"
 #include <TError.h>
 #include <TMath.h>
+#include <exception>
 
 using namespace std;
 
@@ -28,6 +29,16 @@ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 OR OTHER DEALINGS IN THE SOFTWARE.
 )";
+
+void removeCurrentAxis(TAxis* axis) {
+  axis->SetLabelOffset(999);
+  axis->SetTickLength(0);
+  gPad->Update();  // need check
+}
+void copyCurrentAxisStyle(TAxis* ax1, TGaxis* ax2) {
+  ax2->SetLabelSize(ax1->GetLabelSize());
+  ax2->SetLabelFont(ax1->GetLabelFont());
+}
 }
 
 namespace cxfunc::ROOT {
@@ -185,7 +196,7 @@ auto skymapCircle(
   double forError,
   Width_t lw,
   Style_t ls
-) {
+) ->TGraph * {
   double ra0 = x;
   double dec0 = y;
   double decmin = dec0 - r;
@@ -227,4 +238,100 @@ auto skymapCircle(
 }
 }
 
+namespace reverse {
+auto reverseXAxis(TH1 *h) -> TGaxis * {
+  TAxis *xaxis = h->GetXaxis();
+  removeCurrentAxis(xaxis);
+  auto *newaxis = new TGaxis(gPad->GetUxmax(), gPad->GetUymin(), gPad->GetUxmin(), gPad->GetUymin(), xaxis->GetXmin(), xaxis->GetXmax(), 510, "-");
+  newaxis->SetLabelOffset(-0.03);
+  copyCurrentAxisStyle(xaxis, newaxis);
+  newaxis->Draw();
+  return newaxis;
+}
+
+auto reDrawYAxis(TH1 *h) -> TGaxis * {
+  TAxis *yaxis = h->GetYaxis();
+  removeCurrentAxis(yaxis);
+  auto *newaxis = new TGaxis(gPad->GetUxmin(), gPad->GetUymin(), gPad->GetUxmin(), gPad->GetUymax(), yaxis->GetXmin(), yaxis->GetXmax(), 510, "-");
+  // newaxis->SetLabelOffset();
+  copyCurrentAxisStyle(yaxis, newaxis);
+  newaxis->Draw();
+  return newaxis;
+}
+
+void reverseYAxis(TH1 *h) {
+  TAxis *yaxis = h->GetYaxis();
+  removeCurrentAxis(yaxis);
+  auto *newaxis = new TGaxis(gPad->GetUxmin(), gPad->GetUymax(), gPad->GetUxmin() - 0.001, gPad->GetUymin(), yaxis->GetXmin(), yaxis->GetXmax(), 510, "+");
+  newaxis->SetLabelOffset(-0.03);
+  copyCurrentAxisStyle(yaxis, newaxis);
+  newaxis->Draw();
+}
+
+void reverseXTH2D(TH2 *h, TAxis *haxis) {
+  double x1 = h->GetXaxis()->GetXmin();
+  double x2 = h->GetXaxis()->GetXmax();
+  double x11 = haxis->GetXmin();
+  double x21 = haxis->GetXmax();
+  // if(x1+x2-x11-x21>1e-11*x1 || x1 == 0.0) //need check
+  if (fabs(x1 + x2 - x11 - x21) > 1e-11) {  // need check
+    Error("reverseXTH2D", "TH2D in frame errors not middle");
+    std::terminate();
+  }
+  reverseXTH2D_self(h);
+}
+
+void reverseXTH2D_self(TH2 *h) {
+  for (auto j : ::ROOT::TSeqI(h->GetYaxis()->GetNbins() + 2)) {
+    int n = h->GetXaxis()->GetNbins() + 1;
+    for (auto i : ::ROOT::TSeqI(n + 1)) {
+      int i2 = n - i;
+      if (i2 > i) {
+        auto VarL = h->GetBinContent(i, j);
+        auto VarR = h->GetBinContent(i2, j);
+        h->SetBinContent(i, j, VarR);
+        h->SetBinContent(i2, j, VarL);
+      } else {
+        break;
+      }
+    }
+  }
+}
+
+void reverseX(TGraph *g1, TAxis *haxis) {
+  double xmax = haxis->GetXmax();
+  double xmin = haxis->GetXmin();
+  double x2 = xmax + xmin;
+  for (auto i : ::ROOT::TSeqI(g1->GetN())) {
+    double x = NAN;
+    double y = NAN;
+    g1->GetPoint(i, x, y);
+    x = x2 - x;
+    g1->SetPoint(i, x, y);
+  }
+}
+
+void reverseX(TEllipse *e1, TAxis *haxis) {
+  Warning("reverse", "Reverse only for circle not ellipse, need modify");
+  double xmax = haxis->GetXmax();
+  double xmin = haxis->GetXmin();
+  double x2 = xmax + xmin;
+  e1->SetX1(x2 - e1->GetX1());
+}
+
+void reverseX(TArrow *e1, TAxis *haxis) {
+  double xmax = haxis->GetXmax();
+  double xmin = haxis->GetXmin();
+  double xm = xmax + xmin;
+  e1->SetX1(xm - e1->GetX1());
+  e1->SetX2(xm - e1->GetX2());
+}
+
+double reverseX(double e1, TAxis *haxis) {
+  double xmax = haxis->GetXmax();
+  double xmin = haxis->GetXmin();
+  double x2 = xmax + xmin;
+  return x2 - e1;
+}
+} // namespace reverse
 }

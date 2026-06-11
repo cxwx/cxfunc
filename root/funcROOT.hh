@@ -7,6 +7,7 @@
 #include <TColor.h>
 #include <TEllipse.h>
 #include <TFile.h>
+#include <TGaxis.h>
 #include <TGraph.h>
 #include <TGraphAsymmErrors.h>
 #include <TH1.h>
@@ -164,7 +165,19 @@ auto skymapCircle(
   Width_t lw = 1,
   Style_t ls = kSolid
 ) -> TGraph *;
-
 }
+
+namespace reverse {
+auto reverseXAxis(TH1* h) -> TGaxis*;
+auto reDrawYAxis(TH1* h) -> TGaxis*;
+void reverseYAxis(TH1* h);
+void reverseXTH2D(TH2* h, TAxis* haxis);
+void reverseXTH2D_self(TH2* h);
+void reverseX(TGraph* g1, TAxis* haxis);
+void reverseX(TEllipse* e1, TAxis* haxis);
+void reverseX(TArrow* e1, TAxis* haxis);
+auto reverseX(double e1, TAxis* haxis) -> double;
+}
+
 
 }  // namespace cxfunc::ROOT

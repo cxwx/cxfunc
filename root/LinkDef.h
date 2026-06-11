@@ -13,4 +13,14 @@
 #pragma link C++ function cxfunc::ROOT::draw::skyMap;
 #pragma link C++ function cxfunc::ROOT::draw::skymapCircle;
 
+// reverse namespace functions
+#pragma link C++ function cxfunc::ROOT::reverse::reverseXAxis;
+#pragma link C++ function cxfunc::ROOT::reverse::reDrawYAxis;
+#pragma link C++ function cxfunc::ROOT::reverse::reverseYAxis;
+#pragma link C++ function cxfunc::ROOT::reverse::reverseXTH2D;
+#pragma link C++ function cxfunc::ROOT::reverse::reverseXTH2D_self;
+#pragma link C++ function cxfunc::ROOT::reverse::reverseX(TGraph*, TAxis*);
+#pragma link C++ function cxfunc::ROOT::reverse::reverseX(TEllipse*, TAxis*);
+#pragma link C++ function cxfunc::ROOT::reverse::reverseX(TArrow*, TAxis*);
+
 #endif
