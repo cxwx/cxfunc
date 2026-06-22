@@ -45,6 +45,31 @@ auto simpleErrorExit(Func func, const std::string& fname = "unknown") {
   return errorExitDecorator(func, fname, false);
 }
 
+template <typename Func>
+auto entryExitDecorator(Func func, const std::string& fname) {
+  return [func, fname](auto&&... args) -> auto {
+    struct ExitLog {
+      const std::string& name;
+      int depth;
+      explicit ExitLog(const std::string& n) : name(n), depth(std::uncaught_exceptions()) {}
+      ~ExitLog() {
+        if (std::uncaught_exceptions() > depth) {
+          std::cerr << "[EXIT] " << name << " (via exception)\n";
+        } else {
+          std::cout << "[EXIT] " << name << '\n';
+        }
+      }
+    };
+    std::cout << "[ENTER] " << fname << '\n';
+    ExitLog exitLog{fname};
+    if constexpr (std::is_void_v<std::invoke_result_t<Func, decltype(args)...>>) {
+      func(std::forward<decltype(args)>(args)...);
+    } else {
+      return func(std::forward<decltype(args)>(args)...);
+    }
+  };
+}
+
 }  // namespace cxfunc::error
 
 #endif

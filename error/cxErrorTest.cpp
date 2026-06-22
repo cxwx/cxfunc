@@ -1,6 +1,6 @@
 #include "error_exit.hh"
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 
 using namespace std;
@@ -53,6 +53,20 @@ void cxErrorTest() {
   try {
     auto wrappedSimple = simpleErrorExit(testThrowingFunction, "simpleTest");
     wrappedSimple(10);  // 正常执行
+  } catch (const exception &e) { cerr << "Caught exception: " << e.what() << '\n'; }
+
+  cout << "\n=== 测试6: 进入/退出装饰器（无 try/catch）正常情况 ===" << '\n';
+  {
+    auto wrappedEntryExit = entryExitDecorator(testNormalFunction, "testNormalFunction");
+    wrappedEntryExit("entry/exit normal");
+  }
+
+  cout << "\n=== 测试7: 进入/退出装饰器 - 异常情况（装饰器本身无 try/catch） ===" << '\n';
+  // 装饰器不含 try/catch：异常会传播出来，但 ExitLog 析构时仍会打印 [EXIT]
+  // 这里的 try/catch 只为让测试继续跑完，不是装饰器的一部分
+  try {
+    auto wrappedEntryExit = entryExitDecorator(testThrowingFunction, "testThrowingFunction");
+    wrappedEntryExit(-1);  // 抛异常
   } catch (const exception &e) { cerr << "Caught exception: " << e.what() << '\n'; }
 
   cout << "\n=== 所有测试完成 ===" << '\n';

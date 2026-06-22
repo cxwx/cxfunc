@@ -19,6 +19,10 @@ wrappedFunc(args...);
 // 简化版本
 auto simpleWrapped = simpleErrorExit(originalFunction, "functionName");
 simpleWrapped(args...);
+
+// 进入/退出装饰器（无 try/catch，异常时也会打印 [EXIT]）
+auto entryExitWrapped = entryExitDecorator(originalFunction, "functionName");
+entryExitWrapped(args...);
 ```
 
 ## 特性
