@@ -1,0 +1,12 @@
+# CMake config file for cxfunc_error
+
+# Set the include directories
+set(CXFUNC_ERROR_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include")
+
+# Create imported target for users
+if(NOT TARGET cxfunc::error)
+    add_library(cxfunc::error INTERFACE IMPORTED)
+    set_target_properties(cxfunc::error PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${CXFUNC_ERROR_INCLUDE_DIR}"
+    )
+endif()

@@ -40,6 +40,7 @@ set(CXFUNC_MODULES
     random
     stats
     timer
+    error
     crypt
     swapbyte
     pause
@@ -90,6 +91,9 @@ if(NOT CXFUNC_STANDALONE)
     endif()
     if(TARGET cxfunc_stats)
         list(APPEND CXFUNC_INSTALL_TARGETS cxfunc_stats)
+    endif()
+    if(TARGET cxerror)
+        list(APPEND CXFUNC_INSTALL_TARGETS cxerror)
     endif()
     if(TARGET cxswapbyte)
         list(APPEND CXFUNC_INSTALL_TARGETS cxswapbyte)

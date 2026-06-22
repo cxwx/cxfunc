@@ -25,3 +25,5 @@
 /io/.clang-tidy
 /io/build
 /CODE_QUALITY_TODO.org
+/error/build
+/build_top
