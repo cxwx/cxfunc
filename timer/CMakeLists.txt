@@ -57,7 +57,14 @@ if(NOT DEFINED CXFUNC_TOP_LEVEL_BUILD)
     include(CMakePackageConfigHelpers)
 
     # Install headers
-    install(FILES benchmark.hh DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cxfunc/timer)
+    # Note: benchmark.hh and benchmark2.hh are installed by parent CMakeLists.txt
+    # to maintain consistency with other modules
+
+    # Install the library target
+    install(TARGETS cxfunc_timer
+        EXPORT cxfunc_timerTargets
+        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    )
 
     # Install examples (if built)
     if(TARGET cxRandTest AND TARGET cxHeaderTest)
