@@ -66,7 +66,7 @@ brew install cmake eigen gsl boost
 
 ```bash
 # Clone repository (if applicable)
-cd /Users/chenxu/software/chenxufunc/v2/math
+cd ${HOME}/software/cxfunc/v2/math
 
 # Create build directory
 mkdir -p build && cd build

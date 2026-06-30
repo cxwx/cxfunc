@@ -68,7 +68,7 @@ brew install cmake eigen
 
 ```bash
 # Clone repository (if applicable)
-cd /Users/chenxu/software/chenxufunc/v2/maps
+cd ${HOME}/software/cxfunc/v2/maps
 
 # Create build directory
 mkdir -p build && cd build
